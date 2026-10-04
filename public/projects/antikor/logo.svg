@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12304a"/>
+      <stop offset="1" stop-color="#0a1520"/>
+    </linearGradient>
+    <linearGradient id="sh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cccf6"/>
+      <stop offset="1" stop-color="#3f9fd8"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <!-- kalkan -->
+  <path d="M128 34 L204 62 V124 C204 172 172 206 128 224 C84 206 52 172 52 124 V62 Z" fill="url(#sh)"/>
+  <path d="M128 34 L204 62 V124 C204 172 172 206 128 224 C84 206 52 172 52 124 V62 Z" fill="none" stroke="#0a1520" stroke-width="6" stroke-linejoin="round"/>
+  <!-- kalkanın içinde açık kitap (kılavuz) -->
+  <path d="M128 98 C112 88 92 86 76 90 V160 C92 156 112 158 128 168 Z" fill="#f2fbff"/>
+  <path d="M128 98 C144 88 164 86 180 90 V160 C164 156 144 158 128 168 Z" fill="#dff2fc"/>
+  <path d="M128 98 V168" stroke="#0a1520" stroke-width="5" stroke-linecap="round"/>
+  <g stroke="#3f9fd8" stroke-width="5" stroke-linecap="round">
+    <path d="M88 108 C99 106 109 108 117 112"/>
+    <path d="M88 124 C99 122 109 124 117 128"/>
+    <path d="M88 140 C99 138 109 140 117 144"/>
+    <path d="M139 112 C147 108 157 106 168 108"/>
+    <path d="M139 128 C147 124 157 122 168 124"/>
+    <path d="M139 144 C147 140 157 138 168 140"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#EA580C"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <!-- fiş: alt kenarı tırtıklı -->
+  <path d="M70 46 H170 V196 L157 186 L144 196 L131 186 L118 196 L105 186 L92 196 L79 186 L70 196 Z" fill="#FFF7ED" stroke="#431407" stroke-width="7" stroke-linejoin="round"/>
+  <g stroke="#FDBA74" stroke-width="8" stroke-linecap="round">
+    <path d="M90 78 H150"/><path d="M90 102 H136"/><path d="M90 126 H146"/>
+  </g>
+  <path d="M90 156 H150" stroke="#431407" stroke-width="9" stroke-linecap="round"/>
+  <!-- yapay zekâ ışıltısı -->
+  <path d="M190 104 L198 126 L220 134 L198 142 L190 164 L182 142 L160 134 L182 126 Z" fill="#FEF3C7" stroke="#431407" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M206 60 L210 71 L221 75 L210 79 L206 90 L202 79 L191 75 L202 71 Z" fill="#FEF3C7"/>
+</svg>
