@@ -6,7 +6,7 @@ Kullanıcıyla Türkçe konuş. Kod yorumları da Türkçe.
 
 ## Yapı
 
-İki mod var (adarkeser.com'daki gibi): **macera modu** (BMO sahnesi, varsayılan) ve **normal mod** (sade kaydırmalı sayfa). `src/main.js` seçimi `localStorage` `mode` ile hatırlar; `?mode=normal` ile de açılır. Macera modunda "Normal mod" düğmesi **sol üstte** (sağ üstteki oyun kontrolleri Geç/pil/ses'ten ayrı dursun diye); normal modun sağ üstünde "Macera modu" düğmesi var.
+İki mod var (adarkeser.com'daki gibi): **normal mod** (sade kaydırmalı sayfa, **varsayılan**; ilk gelen ziyaretçi bununla başlar) ve **macera modu** (BMO sahnesi). `src/main.js` seçimi `localStorage` `mode` ile hatırlar; `?mode=normal` ile de açılır. Macera modunda "Normal mod" düğmesi **sol üstte** (sağ üstteki oyun kontrolleri Geç/pil/ses'ten ayrı dursun diye); normal modun sağ üstünde "Macera modu" düğmesi var.
 
 - `src/data.js`: bütün içerik (profil, projeler, arka plan, karakterin arka plandaki yeri). İçerik değişikliği önce buraya.
 - `src/adventure/scene.js`: Three.js sahnesi; BMO modeli, kartuşlar, animasyonlar, yüz ifadeleri, etkileşim.

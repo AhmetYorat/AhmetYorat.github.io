@@ -29,4 +29,5 @@ async function show(mode) {
   }
 }
 
-show(asked === 'normal' || asked === 'adventure' ? asked : saved === 'normal' ? 'normal' : 'adventure');
+// ilk gelen ziyaretçi normal modda başlar; macera modunu seçen bir dahaki gelişte onu görür
+show(asked === 'normal' || asked === 'adventure' ? asked : saved === 'adventure' ? 'adventure' : 'normal');
