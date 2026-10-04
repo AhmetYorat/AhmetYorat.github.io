@@ -33,7 +33,7 @@ button { font: inherit; color: inherit; }
   --g-dark: #0f2a1e;     /* koyu zemin */
   --g-ink: #173327;      /* TV yazı rengi */
   --mint: #cfeedd;
-  position: fixed; inset: 0; background: #24160d; overflow: hidden;
+  position: fixed; inset: 0; background: #24160d; overflow: hidden; overflow: clip; /* clip: odak/kaydırma ile bile kaymaz */
   font-family: var(--pixel);
 }
 .adv-loading {
@@ -68,7 +68,9 @@ button { font: inherit; color: inherit; }
 .adv-btn:hover { background: #17402d; }
 .adv-btn:active { transform: translateY(2px); }
 .adv-btn svg { width: 18px; height: 18px; }
-.adv-sound { padding: 0; }
+.adv-sound, .adv-battery { padding: 0; }
+.adv-battery:hover svg { animation: adv-zap 0.5s steps(2) infinite; }
+@keyframes adv-zap { 50% { color: #f5d327; } }
 .adv-btn[hidden] { display: none; }
 
 /* açılış: ekranın tamamı tıklanabilir, BMO'nun üstünde nabız gibi atan etiket */
@@ -265,8 +267,27 @@ button { font: inherit; color: inherit; }
   --rc: #8aa79a; position: relative; display: flex; align-items: center; gap: 8px;
   padding: 5px 8px 5px 5px; background: rgba(207, 238, 221, 0.06); border-radius: 4px; color: #e9f8ee;
   box-shadow: inset 0 0 0 2px var(--rc);
-  animation: tv-item-in 0.3s cubic-bezier(.3,1.5,.5,1) var(--d) both; overflow: hidden;
+  animation: tv-item-in 0.3s cubic-bezier(.3,1.5,.5,1) var(--d) backwards; overflow: hidden;
+  transition: transform 0.16s cubic-bezier(.3,1.6,.5,1), box-shadow 0.16s, background 0.16s;
 }
+/* üstüne gelince: kalkar, nadirlik renginde parlar, rozet zıplar, XP kareleri sırayla yanar, köşede yıldız */
+.tv-item:hover {
+  transform: translateY(-3px) scale(1.04); z-index: 1;
+  background: color-mix(in srgb, var(--rc) 22%, transparent);
+  box-shadow: inset 0 0 0 2px var(--rc), 0 0 0 2px #0d1f17, 0 0 16px var(--rc);
+}
+.tv-item:hover .tv-ico { animation: tv-hop 0.5s steps(3) infinite alternate; }
+.tv-item:hover .tv-xp i.on { animation: tv-xp 0.7s steps(2) calc(var(--k) * 0.05s) infinite; }
+.tv-item::before {
+  content: ''; position: absolute; top: 4px; right: 5px; width: 9px; height: 9px; pointer-events: none;
+  background: var(--rc); opacity: 0; transform: scale(0.2) rotate(45deg);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  transition: opacity 0.15s, transform 0.25s cubic-bezier(.3,1.8,.5,1);
+}
+.tv-item:hover::before { opacity: 1; transform: scale(1) rotate(0); animation: tv-twinkle 0.9s steps(2) 0.25s infinite; }
+@keyframes tv-hop { to { transform: translateY(-3px); } }
+@keyframes tv-xp { 50% { background: #fff8d6; } }
+@keyframes tv-twinkle { 50% { transform: scale(0.6) rotate(45deg); } }
 .tv-ico {
   flex: none; width: 30px; height: 30px; display: grid; place-items: center;
   background: var(--bg); color: var(--fg); border-radius: 2px;
@@ -292,7 +313,7 @@ button { font: inherit; color: inherit; }
 @keyframes tv-shine { 0%, 60% { background-position: -150% 0; } 100% { background-position: 150% 0; } }
 @keyframes tv-item-in { from { opacity: 0; transform: translateY(6px) scale(0.9); } }
 @media (max-width: 600px) { .tv-items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (prefers-reduced-motion: reduce) { .tv-item, .tv-item.r-legend::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tv-item, .tv-item.r-legend::after, .tv-item:hover .tv-ico, .tv-item:hover .tv-xp i.on, .tv-item:hover::before { animation: none; } }
 .tv-chip-note { background: #1d3b30; color: #e9f8ee; border-color: #1d3b30 !important; }
 .tv-links { display: flex; flex-wrap: wrap; gap: 10px; margin: -14px 0 28px; }
 .tv-links[hidden] { display: none; }

@@ -99,6 +99,7 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     <div class="adv-corner">
       <button type="button" class="adv-btn adv-skip" hidden>Geç</button>
       ${onSwitch ? '<button type="button" class="adv-btn adv-mode">Normal mod</button>' : ''}
+      <button type="button" class="adv-btn adv-battery" aria-label="Pil değiştir" title="Pil değiştir"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="4.5" width="11" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="13" y="6.5" width="1.6" height="3" fill="currentColor"/><path d="M7.6 5.6 5.4 8.3h2.2l-1 2.2 2.6-3H7l.6-1.9z" fill="currentColor"/></svg></button>
       <button type="button" class="adv-btn adv-sound" aria-label="Ses"></button>
     </div>
     <p class="sr-only" role="status" aria-live="polite"></p>
@@ -108,6 +109,7 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     wrap: root.querySelector('.adv'),
     canvas: root.querySelector('.adv-canvas'),
     sound: root.querySelector('.adv-sound'),
+    battery: root.querySelector('.adv-battery'),
     skip: root.querySelector('.adv-skip'),
     start: root.querySelector('.adv-start'),
     dialog: root.querySelector('.adv-dialog'),
@@ -791,13 +793,18 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     return g;
   }
   // eskiler kapağın arkasında dik duruyor, yeniler yerde
-  const oldBats = [-0.09, 0.09].map((x) => {
-    const b = battery(false);
-    b.position.set(x, HATCH_Y, -D / 2 + 0.1);
-    b.rotation.x = Math.PI / 2;
-    bmoBody.add(b);
-    return b;
-  });
+  const OLD_X = [-0.09, 0.09];
+  const oldBats = OLD_X.map(() => battery(false));
+  // eski piller kapağın arkasındaki yerlerine (açılış tekrar oynatılabilsin diye ayrı)
+  function resetOldBats() {
+    oldBats.forEach((b, j) => {
+      bmoBody.add(b);
+      b.position.set(OLD_X[j], HATCH_Y, -D / 2 + 0.1);
+      b.rotation.set(Math.PI / 2, 0, 0);
+      b.scale.setScalar(1);
+    });
+  }
+  resetOldBats();
   const newBats = [0, 1].map(() => {
     const b = battery(true);
     bmo.add(b);
@@ -1402,11 +1409,19 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     const items = skillList().map(({ tech, lv }, i) => {
       const [ab, bg, fg] = TECH[tech] || [tech.slice(0, 2), '#7ead9c', '#173327'];
       const [cls, name] = rarity(lv);
-      const xp = Array.from({ length: 10 }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
+      const xp = Array.from({ length: 10 }, (_, k) => `<i class="${k < lv ? 'on' : ''}" style="--k:${k}"></i>`).join('');
       return `<div class="tv-item r-${cls}" style="--d:${(i * 0.05).toFixed(2)}s"><span class="tv-ico" style="--bg:${bg};--fg:${fg}">${esc(ab)}</span><span class="tv-it"><strong>${esc(tech)}</strong><small>${name} · Sv.${lv}</small><span class="tv-xp" aria-label="${lv}/10">${xp}</span></span></div>`;
     }).join('');
     return `<div class="tv-skills"><p class="tv-inv-h">Envanter</p><div class="tv-items">${items}</div></div>`;
   }
+
+  // envanterde bir eşyanın üstüne gelince kısa 8-bit ses
+  let lastItem = null;
+  el.tv.addEventListener('pointerover', (e) => {
+    const it = e.target.closest?.('.tv-item');
+    if (it && it !== lastItem) sfx.hover([...it.parentNode.children].indexOf(it) % 7, 0);
+    lastItem = it;
+  });
 
   function openTv(p) {
     const me = isAbout(p);
@@ -1862,6 +1877,7 @@ export async function mountAdventure(root, { onSwitch } = {}) {
   }
 
   function setupIntro() {
+    resetOldBats();
     intro = { phase: 'wait' };
     busy = true;
     el.wrap.dataset.intro = 'dark';
@@ -2040,6 +2056,13 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     greet();
   }
   el.skip.addEventListener('click', () => endIntro());
+  // sağ üstteki pil düğmesi: pil değiştirme sahnesini baştan oynatır
+  el.battery.addEventListener('click', () => {
+    if (intro || busy || tvOpen) return;
+    sfx.unlock();
+    setupIntro();
+    playIntro();
+  });
   // normal moda geçiş (açılış sürüyorsa atlanmış sayılır)
   root.querySelector('.adv-mode')?.addEventListener('click', () => {
     if (intro) endIntro();
