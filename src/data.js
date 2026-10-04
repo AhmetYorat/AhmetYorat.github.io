@@ -14,6 +14,12 @@ export const profile = {
     ['Web', 'React · Next.js · Three.js'],
     ['Backend', 'Python · FastAPI · Node.js · PostgreSQL'],
   ],
+  // Hakkımda kartuşunda piksel çubuklarla gösterilir: seviye 10 üzerinden (tahmini, istediğin gibi değiştir)
+  levels: {
+    Flutter: 8, Firebase: 8,
+    React: 6, 'Next.js': 6, 'Three.js': 5,
+    Python: 7, FastAPI: 7, 'Node.js': 6, PostgreSQL: 6,
+  },
   email: 'ahmetyorat0@gmail.com',
   github: 'https://github.com/AhmetYorat',
   linkedin: 'https://www.linkedin.com/in/ahmetyorat/',

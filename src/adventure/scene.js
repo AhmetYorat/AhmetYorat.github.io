@@ -963,7 +963,10 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     // isim harf harf yazılır
     const name = p.name.toLocaleUpperCase('tr');
     ctx.fillStyle = '#173327';
-    ctx.font = `700 46px ${PIXEL}`;
+    // uzun adlar ekrana sığsın diye yazı küçülür
+    let fs = 46;
+    ctx.font = `700 ${fs}px ${PIXEL}`;
+    while (ctx.measureText(name).width > W - 40 && fs > 22) ctx.font = `700 ${(fs -= 2)}px ${PIXEL}`;
     ctx.textAlign = 'center';
     ctx.fillText(name.slice(0, faceState.bootChars ?? name.length), W / 2, 268);
     ctx.textAlign = 'left';
@@ -1365,6 +1368,22 @@ export async function mountAdventure(root, { onSwitch } = {}) {
   // örnek değerler (data.js'te doldurulmamışsa) sitede gösterilmez
   const realEmail = profile.email && !/ornek|example/.test(profile.email);
   const realLinkedin = profile.linkedin && !/linkedin\.com\/?$/.test(profile.linkedin);
+  // yetenekler: her teknoloji için 10 karelik piksel çubuk, kareler sırayla dolar
+  const GROUP_COLORS = ['#3fbf6a', '#3b82f6', '#f08a24'];
+  function skillBars() {
+    let n = 0;
+    const rows = profile.skills.flatMap(([, list], g) =>
+      list.split('·').map((t) => t.trim()).map((tech) => {
+        const lv = profile.levels?.[tech] ?? 5;
+        const row = n++;
+        const cells = Array.from({ length: 10 }, (_, k) =>
+          `<i class="${k < lv ? 'on' : ''}" style="--d:${(row * 0.06 + k * 0.035).toFixed(2)}s"></i>`).join('');
+        return `<div class="tv-skill" style="--sc:${GROUP_COLORS[g % 3]}"><span>${esc(tech)}</span><span class="tv-bar" aria-label="${lv}/10">${cells}</span></div>`;
+      })
+    );
+    const legend = profile.skills.map(([k], g) => `<em style="--sc:${GROUP_COLORS[g % 3]}">${esc(k)}</em>`).join('');
+    return `<div class="tv-skills"><div class="tv-legend">${legend}</div>${rows.join('')}</div>`;
+  }
   function openTv(p) {
     const me = isAbout(p);
     el.tv.dataset.kind = me ? 'about' : 'project';
@@ -1372,7 +1391,7 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     el.tv.querySelector('.tv-title').textContent = me ? profile.name : p.name;
     el.tv.querySelector('.tv-desc').textContent = me ? `${profile.tagline} ${profile.about}` : p.desc;
     el.tv.querySelector('.tv-chips').innerHTML = me
-      ? [`<span class="tv-chip-note">${esc(profile.note)}</span>`, ...profile.skills.map(([k, v]) => `<span><b>${esc(k)}</b> ${esc(v)}</span>`)].join('')
+      ? `<span class="tv-chip-note">${esc(profile.note)}</span>${skillBars()}`
       : [...p.platforms, p.stack].map((s) => `<span>${esc(s)}</span>`).join('');
     // iletişim linkleri (yalnız Hakkımda'da)
     const links = me

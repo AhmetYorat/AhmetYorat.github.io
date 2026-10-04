@@ -226,6 +226,19 @@ button { font: inherit; color: inherit; }
   font-family: var(--pixel); font-size: 13px; font-weight: 700;
 }
 .tv-chips b { color: #a8740f; margin-right: 4px; }
+/* Hakkımda: piksel yetenek çubukları */
+.tv-chips .tv-skills span { border: 0; padding: 0; border-radius: 0; font-size: inherit; }
+.tv-skills { flex-basis: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 28px; margin-top: 6px; }
+.tv-legend { grid-column: 1 / -1; display: flex; gap: 16px; }
+.tv-legend em { font-style: normal; font-family: var(--pixel); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.tv-legend em::before { content: ''; width: 10px; height: 10px; background: var(--sc); box-shadow: inset -2px -2px 0 rgba(0,0,0,0.25); }
+.tv-skill { display: grid; grid-template-columns: 7.5em 1fr; align-items: center; gap: 10px; font-family: var(--pixel); font-size: 13px; font-weight: 700; }
+.tv-bar { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; max-width: 190px; }
+.tv-bar i { aspect-ratio: 1; background: rgba(23, 51, 39, 0.12); box-shadow: inset 0 0 0 1px rgba(23, 51, 39, 0.18); }
+.tv-bar i.on { background: var(--sc); box-shadow: inset -2px -2px 0 rgba(0,0,0,0.25), inset 2px 2px 0 rgba(255,255,255,0.3); animation: tv-pix 0.18s steps(2) var(--d) both; }
+@keyframes tv-pix { from { background: rgba(23, 51, 39, 0.12); box-shadow: inset 0 0 0 1px rgba(23, 51, 39, 0.18); transform: scale(0.6); } }
+@media (max-width: 600px) { .tv-skills { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .tv-bar i.on { animation: none; } }
 .tv-chip-note { background: #1d3b30; color: #e9f8ee; border-color: #1d3b30 !important; }
 .tv-links { display: flex; flex-wrap: wrap; gap: 10px; margin: -14px 0 28px; }
 .tv-links[hidden] { display: none; }
