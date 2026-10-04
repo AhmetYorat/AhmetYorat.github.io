@@ -197,7 +197,7 @@
   <g shape-rendering="auto">
     <path transform="translate(110 210) scale(1.6)" d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6Z" fill="#ffe7a0"/><path transform="translate(500 250) scale(1.2)" d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6Z" fill="#ffe7a0"/><path transform="translate(480 520) scale(1.8)" d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6Z" fill="#f7c948"/><path transform="translate(128 540) scale(1.1)" d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6Z" fill="#ffe7a0"/>
   </g>
-  <text x="300" y="628" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="64" letter-spacing="4" fill="url(#gold)">AHMET</text>
+  <text x="300" y="628" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="50" letter-spacing="2" fill="url(#gold)" textLength="440" lengthAdjust="spacingAndGlyphs">AHMET YORAT</text>
   <text x="300" y="672" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="22" letter-spacing="5" fill="#f3dfa6">YAZILIM MÜHENDİSİ</text>
   <!-- seviye rozeti + XP çubuğu -->
   <rect x="150" y="696" width="96" height="34" rx="8" fill="#f7c948"/>

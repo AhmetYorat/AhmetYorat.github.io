@@ -246,6 +246,17 @@ button { font: inherit; color: inherit; }
   font-family: var(--pixel); font-weight: 700; font-size: 14px; color: var(--g-ink);
   text-decoration: underline; text-underline-offset: 4px;
 }
+/* Hakkımda: içerik uzun, tek ekrana sığsın diye her şey ekran yüksekliğine göre küçülür */
+.adv-tv[data-kind='about'] .tv-inner { padding-top: clamp(48px, 7vh, 80px); padding-bottom: 28px; }
+.adv-tv[data-kind='about'] .tv-shot { width: min(100%, 52vh); justify-self: center; }
+.adv-tv[data-kind='about'] .tv-title { font-size: clamp(30px, 5vh, 52px); margin-bottom: 1.6vh; }
+.adv-tv[data-kind='about'] .tv-desc { font-size: clamp(17px, 2.5vh, 24px); line-height: 1.22; max-width: 52ch; margin-bottom: 1.8vh; }
+.adv-tv[data-kind='about'] .tv-chips { margin-bottom: 1.6vh; gap: 6px; }
+.adv-tv[data-kind='about'] .tv-skills { gap: 0.7vh 24px; margin-top: 2px; }
+.adv-tv[data-kind='about'] .tv-skill { font-size: clamp(11px, 1.5vh, 13px); }
+.adv-tv[data-kind='about'] .tv-bar { max-width: 170px; }
+.adv-tv[data-kind='about'] .tv-links { margin: 0 0 1.8vh; }
+.adv-tv[data-kind='about'] .tv-btn { height: clamp(44px, 6vh, 56px); }
 /* Hakkımda: altın çerçeve */
 .adv-tv[data-kind='about'] .tv-shot { border-color: #d39a2b; background: #d39a2b; box-shadow: 0 14px 34px rgba(211, 154, 43, 0.35); }
 .tv-actions { display: flex; flex-wrap: wrap; gap: 14px; }
