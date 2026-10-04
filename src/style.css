@@ -56,6 +56,8 @@ button { font: inherit; color: inherit; }
 
 /* köşe butonları */
 .adv-corner { position: absolute; top: 16px; right: 16px; display: flex; gap: 10px; z-index: 30; }
+/* mod geçişi sol üstte, oyun kontrollerinden (sağ üst) ayrı */
+.adv-corner-left { right: auto; left: 16px; }
 .adv-btn {
   height: 44px; min-width: 44px; padding: 0 18px;
   display: inline-grid; place-items: center;

@@ -96,9 +96,9 @@ export async function mountAdventure(root, { onSwitch } = {}) {
         </div>
       </div>
     </section>
+    ${onSwitch ? '<div class="adv-corner adv-corner-left"><button type="button" class="adv-btn adv-mode">Normal mod</button></div>' : ''}
     <div class="adv-corner">
       <button type="button" class="adv-btn adv-skip" hidden>Geç</button>
-      ${onSwitch ? '<button type="button" class="adv-btn adv-mode">Normal mod</button>' : ''}
       <button type="button" class="adv-btn adv-battery" aria-label="Pil değiştir" title="Pil değiştir"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="4.5" width="11" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="13" y="6.5" width="1.6" height="3" fill="currentColor"/><path d="M7.6 5.6 5.4 8.3h2.2l-1 2.2 2.6-3H7l.6-1.9z" fill="currentColor"/></svg></button>
       <button type="button" class="adv-btn adv-sound" aria-label="Ses"></button>
     </div>
