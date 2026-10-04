@@ -1193,6 +1193,20 @@ export async function mountAdventure(root, { onSwitch } = {}) {
   // (x sağa, y aşağı). Sıra: sol üst, sağ üst, sol alt, sağ alt, sol orta, sağ en üst
   // Hakkımda kartuşu: tam BMO'nun ortasının üstünde, başının biraz yukarısında
   const ABOUT_AT = [0, -0.92];
+  // dar ekran ızgarası (ekran oranı cinsinden): 3 sütun, satır aralığı, kartuş boyu
+  const GRID_X = [0.2, 0.5, 0.8];
+  const GRID_Y0 = 0.17;
+  const GRID_DY = 0.195;
+  const GRID_H = 0.165;
+  // Hakkımda (son öğe) üst ortada; projeler kalan hücrelere soldan sağa, yukarıdan aşağı
+  function gridCell(i) {
+    const aboutI = items.length - 1;
+    if (i === aboutI) return [1, 0];
+    const cells = [];
+    for (let k = 0; cells.length < items.length - 1; k++) if (k !== 1) cells.push(k);
+    const c = cells[i];
+    return [c % 3, Math.floor(c / 3)];
+  }
   const AROUND = [
     [-0.74, -0.48],
     [0.96, -0.28],
@@ -1256,6 +1270,12 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     camera.updateMatrixWorld();
     placeOnBackground(w, h);
     // karakterin ekrandaki merkezi ve boyu: kartuşlar bunun etrafına dizilir
+    if (portrait) {
+      // kartuş boyu ekran yüksekliğinin GRID_H'i kadar olsun
+      const top = spotToWorld(0.5, 0.2, 0.5, new THREE.Vector3());
+      const bot = spotToWorld(0.5, 0.2 + GRID_H, 0.5, new THREE.Vector3());
+      HOME_S = Math.abs(top.y - bot.y) / CH / 1.12;
+    }
     let ring = null;
     if (!portrait) {
       const bs = bmo.scale.x;
@@ -1277,10 +1297,9 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     carts.forEach((c, i) => {
       const u = c.userData;
       if (portrait) {
-        const k = N === 1 ? 0.5 : i / (N - 1);
-        const nx = lerp(0.16, 0.84, k);
-        const ny = 0.26 + Math.pow(k - 0.5, 2) * 0.22;
-        spotToWorld(nx, ny, 0.5, u.home);
+        // dar ekran: 3 sütunlu ızgara, okunur boyutta; Hakkımda üst sıranın ortasında
+        const [col, row] = gridCell(i);
+        spotToWorld(GRID_X[col], GRID_Y0 + row * GRID_DY, 0.5, u.home);
       } else if (ring) {
         // karakterin etrafında, üst tarafta yay şeklinde (alttaki diyalog kutusuna girmesin)
         const [ox, oy] = isAbout(u.p) ? ABOUT_AT : AROUND[i % AROUND.length];
@@ -1368,22 +1387,27 @@ export async function mountAdventure(root, { onSwitch } = {}) {
   // örnek değerler (data.js'te doldurulmamışsa) sitede gösterilmez
   const realEmail = profile.email && !/ornek|example/.test(profile.email);
   const realLinkedin = profile.linkedin && !/linkedin\.com\/?$/.test(profile.linkedin);
-  // yetenekler: her teknoloji için 10 karelik piksel çubuk, kareler sırayla dolar
-  const GROUP_COLORS = ['#3fbf6a', '#3b82f6', '#f08a24'];
+  // yetenekler: RPG envanteri. Her teknoloji bir eşya yuvası; seviyeye göre nadirlik çerçevesi,
+  // üstüne gelince alttaki satır o eşyanın bilgisini (seviye, nadirlik, grup, XP) gösterir
+  const TECH = {
+    Flutter: ['Fl', '#54C5F8', '#0b3b5c'], Firebase: ['Fb', '#FFCA28', '#5a3a00'],
+    React: ['Re', '#61DAFB', '#0b2f3d'], 'Next.js': ['Nx', '#f4f4f4', '#111'], 'Three.js': ['3D', '#e9e9e9', '#1b1b1b'],
+    Python: ['Py', '#3776AB', '#ffd43b'], FastAPI: ['Fa', '#05998B', '#e8fffb'], 'Node.js': ['No', '#5FA04E', '#0f2a0a'], PostgreSQL: ['Pg', '#336791', '#e8f1fb'],
+  };
+  const rarity = (lv) => (lv >= 8 ? ['legend', 'Efsanevi'] : lv >= 7 ? ['epic', 'Destansı'] : lv >= 6 ? ['rare', 'Nadir'] : ['common', 'Sıradan']);
+  const skillList = () => profile.skills.flatMap(([group, list]) =>
+    list.split('·').map((t) => t.trim()).map((tech) => ({ tech, group, lv: profile.levels?.[tech] ?? 5 })));
   function skillBars() {
-    let n = 0;
-    const rows = profile.skills.flatMap(([, list], g) =>
-      list.split('·').map((t) => t.trim()).map((tech) => {
-        const lv = profile.levels?.[tech] ?? 5;
-        const row = n++;
-        const cells = Array.from({ length: 10 }, (_, k) =>
-          `<i class="${k < lv ? 'on' : ''}" style="--d:${(row * 0.06 + k * 0.035).toFixed(2)}s"></i>`).join('');
-        return `<div class="tv-skill" style="--sc:${GROUP_COLORS[g % 3]}"><span>${esc(tech)}</span><span class="tv-bar" aria-label="${lv}/10">${cells}</span></div>`;
-      })
-    );
-    const legend = profile.skills.map(([k], g) => `<em style="--sc:${GROUP_COLORS[g % 3]}">${esc(k)}</em>`).join('');
-    return `<div class="tv-skills"><div class="tv-legend">${legend}</div>${rows.join('')}</div>`;
+    // her eşya kartı her şeyi gösterir: rozet, ad, nadirlik, seviye, XP; üstüne gelmek gerekmez
+    const items = skillList().map(({ tech, lv }, i) => {
+      const [ab, bg, fg] = TECH[tech] || [tech.slice(0, 2), '#7ead9c', '#173327'];
+      const [cls, name] = rarity(lv);
+      const xp = Array.from({ length: 10 }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
+      return `<div class="tv-item r-${cls}" style="--d:${(i * 0.05).toFixed(2)}s"><span class="tv-ico" style="--bg:${bg};--fg:${fg}">${esc(ab)}</span><span class="tv-it"><strong>${esc(tech)}</strong><small>${name} · Sv.${lv}</small><span class="tv-xp" aria-label="${lv}/10">${xp}</span></span></div>`;
+    }).join('');
+    return `<div class="tv-skills"><p class="tv-inv-h">Envanter</p><div class="tv-items">${items}</div></div>`;
   }
+
   function openTv(p) {
     const me = isAbout(p);
     el.tv.dataset.kind = me ? 'about' : 'project';
