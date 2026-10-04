@@ -1414,16 +1414,17 @@ export async function mountAdventure(root, { onSwitch } = {}) {
     el.tv.querySelector('.tv-shot').innerHTML = cover(p, true);
     el.tv.querySelector('.tv-title').textContent = me ? profile.fullName || profile.name : p.name;
     el.tv.querySelector('.tv-desc').textContent = me ? `${profile.tagline} ${profile.about}` : p.desc;
-    el.tv.querySelector('.tv-chips').innerHTML = me
-      ? `<span class="tv-chip-note">${esc(profile.note)}</span>${skillBars()}`
-      : [...p.platforms, p.stack].map((s) => `<span>${esc(s)}</span>`).join('');
-    // iletişim linkleri (yalnız Hakkımda'da)
+    // iletişim linkleri (yalnız Hakkımda'da): okul etiketinin hemen yanında
     const links = me
-      ? [realEmail && [`mailto:${profile.email}`, 'E-posta'], realLinkedin && [profile.linkedin, 'LinkedIn']].filter(Boolean)
+      ? [realEmail && [`mailto:${profile.email}`, 'E-posta', '✉'], realLinkedin && [profile.linkedin, 'LinkedIn', 'in']].filter(Boolean)
       : [];
+    const linkChips = links.map(([href, t, ic]) => `<a class="tv-chip-link" href="${esc(href)}" target="_blank" rel="noopener"><i aria-hidden="true">${ic}</i>${esc(t)}</a>`).join('');
+    el.tv.querySelector('.tv-chips').innerHTML = me
+      ? `<span class="tv-chip-note">${esc(profile.note)}</span>${linkChips}${skillBars()}`
+      : [...p.platforms, p.stack].map((s) => `<span>${esc(s)}</span>`).join('');
     const lk = el.tv.querySelector('.tv-links');
-    lk.innerHTML = links.map(([href, t]) => `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(t)}</a>`).join('');
-    lk.hidden = !links.length;
+    lk.innerHTML = '';
+    lk.hidden = true;
     if (me) p = { ...p, link: profile.github, linkLabel: 'GitHub' };
     const a = el.tv.querySelector('.tv-a');
     if (p.link) {

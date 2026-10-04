@@ -227,13 +227,43 @@ button { font: inherit; color: inherit; }
 }
 .tv-chips b { color: #a8740f; margin-right: 4px; }
 /* Hakkımda: RPG envanteri (yetenekler); her eşya kartı bilgisini doğrudan gösterir */
-.tv-skills { flex-basis: 100%; margin-top: 4px; }
+/* iletişim etiket-düğmeleri (okul etiketinin yanında) */
+.tv-chip-link {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 5px;
+  border: 2px solid var(--g-ink); border-radius: 6px; color: var(--g-ink); text-decoration: none;
+  font-family: var(--pixel); font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.35);
+  transition: background 0.15s, transform 0.12s;
+}
+.tv-chip-link i { font-style: normal; width: 18px; height: 18px; display: grid; place-items: center; background: var(--g-ink); color: #cfeedd; border-radius: 3px; font-size: 11px; }
+.tv-chip-link:hover { background: #fff; transform: translateY(-1px); }
+/* envanter: oyun penceresi gibi çerçeve (koyu yeşil, piksel kenar, perçinler, üstte sekme) */
+.tv-skills {
+  flex-basis: 100%; position: relative; max-width: 500px; box-sizing: border-box;
+  margin-top: 16px; padding: 18px 12px 12px;
+  background: linear-gradient(180deg, #1f4535, #173327);
+  border: 3px solid #0d1f17; border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #e9a815, inset 0 0 0 4px #0d1f17, 0 5px 0 rgba(0,0,0,0.25), 0 0 22px rgba(233, 168, 21, 0.25);
+}
+/* köşe perçinleri */
+.tv-skills::before {
+  content: ''; position: absolute; inset: 7px; pointer-events: none;
+  background:
+    radial-gradient(circle, #f5d37a 0 2px, transparent 2.5px) left top / 8px 8px no-repeat,
+    radial-gradient(circle, #f5d37a 0 2px, transparent 2.5px) right top / 8px 8px no-repeat,
+    radial-gradient(circle, #f5d37a 0 2px, transparent 2.5px) left bottom / 8px 8px no-repeat,
+    radial-gradient(circle, #f5d37a 0 2px, transparent 2.5px) right bottom / 8px 8px no-repeat;
+}
 .tv-chips .tv-skills span { border: 0; padding: 0; border-radius: 0; }
-.tv-inv-h { margin: 0 0 6px; font-family: var(--pixel); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #3d6b57; }
-.tv-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 500px; }
+.tv-inv-h {
+  position: absolute; top: -13px; left: 14px; margin: 0; padding: 3px 10px;
+  background: #e9a815; color: #1a1206; border: 3px solid #0d1f17; border-radius: 4px;
+  font-family: var(--pixel); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+}
+.tv-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .tv-item {
   --rc: #8aa79a; position: relative; display: flex; align-items: center; gap: 8px;
-  padding: 5px 8px 5px 5px; background: rgba(23, 51, 39, 0.07); border-radius: 4px;
+  padding: 5px 8px 5px 5px; background: rgba(207, 238, 221, 0.06); border-radius: 4px; color: #e9f8ee;
   box-shadow: inset 0 0 0 2px var(--rc);
   animation: tv-item-in 0.3s cubic-bezier(.3,1.5,.5,1) var(--d) both; overflow: hidden;
 }
@@ -241,16 +271,16 @@ button { font: inherit; color: inherit; }
   flex: none; width: 30px; height: 30px; display: grid; place-items: center;
   background: var(--bg); color: var(--fg); border-radius: 2px;
   font-family: var(--pixel); font-weight: 700; font-size: 12px; line-height: 1;
-  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.28), inset 2px 2px 0 rgba(255,255,255,0.35), 0 0 0 2px #173327;
+  box-shadow: inset -2px -2px 0 rgba(0,0,0,0.28), inset 2px 2px 0 rgba(255,255,255,0.35), 0 0 0 2px #0d1f17;
 }
 .tv-it { min-width: 0; display: grid; gap: 3px; font-family: var(--pixel); }
 .tv-it strong { font-size: 13px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tv-it small { font-size: 10px; font-weight: 700; line-height: 1; color: color-mix(in srgb, var(--rc) 65%, #173327); }
+.tv-it small { font-size: 10px; font-weight: 700; line-height: 1; color: color-mix(in srgb, var(--rc) 80%, white); }
 .tv-xp { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; max-width: 100px; }
-.tv-xp i { height: 5px; background: rgba(23, 51, 39, 0.15); }
+.tv-xp i { height: 5px; background: rgba(207, 238, 221, 0.14); }
 .tv-xp i.on { background: var(--rc); }
 /* nadirlik renkleri */
-.r-common { --rc: #8aa79a; }
+.r-common { --rc: #9fb8ac; }
 .r-rare { --rc: #4aa3ff; }
 .r-epic { --rc: #a970ff; }
 .r-legend { --rc: #e9a815; }
