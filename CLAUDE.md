@@ -17,6 +17,8 @@ Kullanıcıyla Türkçe konuş. Kod yorumları da Türkçe.
 
 Çalıştırma: `npm run dev` (Vite, port 5173; `.claude/launch.json` içinde tanımlı).
 
+Yayın: GitHub Pages, **https://ahmetyorat.github.io** (repo `AhmetYorat/AhmetYorat.github.io`, herkese açık). `main`'e her push'ta `.github/workflows/pages.yml` derleyip yayınlar. (Eski `ahmetyorat.com.tr` alan adının süresi doldu; Vercel artık kullanılmıyor.)
+
 ## BMO modeli: alınmış kararlar
 
 BMO, kullanıcının verdiği referans görsellerden **piksel ölçülerek** yapıldı. Değiştirmeden önce bunları bil:
