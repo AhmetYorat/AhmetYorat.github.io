@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { profile, projects } from '../data.js';
 
 // Normal mod: sade, kaydırmalı tek sayfa. Solda metin, sağda kaydırırken sabit duran
@@ -97,6 +98,9 @@ export function mountNormal(root, { onSwitch } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // cilalı gövdelere yumuşak stüdyo yansıması
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 60);
   scene.add(new THREE.AmbientLight('#ffffff', 0.5));
@@ -155,33 +159,87 @@ export function mountNormal(root, { onSwitch } = {}) {
   const shadowTex = radial([[0, 'rgba(0,0,0,0.6)'], [1, 'rgba(0,0,0,0)']]);
   const shadowGeo = new THREE.PlaneGeometry(S * 1.25, S * 0.45).rotateX(-Math.PI / 2);
 
+  scene.environment = envTex;
+  scene.environmentIntensity = 0.55;
+  // ön yüzde cam parlaklığı: üstten hafif beyaz, aşağı doğru kaybolur
+  const glossTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 60, 256);
+    g.addColorStop(0, 'rgba(255,255,255,0.32)');
+    g.addColorStop(0.42, 'rgba(255,255,255,0.06)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0)');
+    x.fillStyle = g;
+    x.fillRect(0, 0, 256, 256);
+    // ince kenar ışığı
+    x.strokeStyle = 'rgba(255,255,255,0.18)';
+    x.lineWidth = 4;
+    x.beginPath();
+    x.roundRect(3, 3, 250, 250, 56);
+    x.stroke();
+    return new THREE.CanvasTexture(c);
+  })();
+  // öndeki ikonun üstünden geçen çapraz ışık şeridi
+  const shineTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = 512;
+    c.height = 256;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(170, 0, 342, 0);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = g;
+    x.setTransform(1, 0, -0.45, 1, 58, 0);
+    x.fillRect(0, 0, 512, 256);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.repeat.set(0.5, 1);
+    return t;
+  })();
+  // zemin yansımasının yere yakın ucu belirgin, aşağı doğru kaybolur
+  const fadeTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = 4;
+    c.height = 256;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, '#000');
+    g.addColorStop(0.55, '#000');
+    g.addColorStop(1, '#fff');
+    x.fillStyle = g;
+    x.fillRect(0, 0, 4, 256);
+    return new THREE.CanvasTexture(c);
+  })();
+
   const icons = list.map((p, i) => {
     const a = (i / N) * Math.PI * 2;
     const g = new THREE.Group();
     g.position.set(Math.sin(a) * R, 0, Math.cos(a) * R);
     g.rotation.y = a;
     // gövde: neredeyse siyah, hafifçe proje rengine çalan ince levha
-    const bodyMat = new THREE.MeshStandardMaterial({ color: new THREE.Color('#141816').lerp(new THREE.Color(p.color), 0.12), roughness: 0.55, metalness: 0.15 });
+    const bodyMat = new THREE.MeshPhysicalMaterial({ color: new THREE.Color('#141816').lerp(new THREE.Color(p.color), 0.16), roughness: 0.38, metalness: 0.25, clearcoat: 1, clearcoatRoughness: 0.18 });
     g.add(new THREE.Mesh(slabGeo, bodyMat));
     // ön yüz: logo
     const c = document.createElement('canvas');
-    c.width = c.height = 512;
+    c.width = c.height = 1024;
     const x = c.getContext('2d');
     x.fillStyle = p.surface || '#111';
-    x.fillRect(0, 0, 512, 512);
+    x.fillRect(0, 0, 1024, 1024);
     x.fillStyle = p.color;
-    x.font = '800 200px Unbounded, sans-serif';
+    x.font = '800 400px Unbounded, sans-serif';
     x.textAlign = 'center';
     x.textBaseline = 'middle';
-    x.fillText(p.short || '', 256, 270);
+    x.fillText(p.short || '', 512, 540);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 8;
     if (p.logo) {
       const img = new Image();
       img.onload = () => {
-        x.clearRect(0, 0, 512, 512);
-        x.drawImage(img, 0, 0, 512, 512);
+        x.clearRect(0, 0, 1024, 1024);
+        x.drawImage(img, 0, 0, 1024, 1024);
         tex.needsUpdate = true;
       };
       img.src = p.logo;
@@ -190,12 +248,26 @@ export function mountNormal(root, { onSwitch } = {}) {
     const face = new THREE.Mesh(faceGeo, faceMat);
     face.position.z = DEPTH / 2 + 0.021;
     g.add(face);
+    // cam parlaklığı + geçen ışık şeridi
+    const gloss = new THREE.Mesh(faceGeo, new THREE.MeshBasicMaterial({ map: glossTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    gloss.position.z = face.position.z + 0.002;
+    g.add(gloss);
+    const shineMap = shineTex.clone();
+    shineMap.needsUpdate = true;
+    const shine = new THREE.Mesh(faceGeo, new THREE.MeshBasicMaterial({ map: shineMap, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+    shine.position.z = face.position.z + 0.004;
+    g.add(shine);
+    // zemindeki soluk yansıma (ön yüzün aynası)
+    const refl = new THREE.Mesh(faceGeo, new THREE.MeshBasicMaterial({ map: tex, alphaMap: fadeTex, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }));
+    refl.scale.y = -1;
+    refl.position.set(0, 2 * FLOOR, face.position.z);
+    g.add(refl);
     const sh = new THREE.Mesh(shadowGeo, new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
     sh.position.y = FLOOR;
     g.add(sh);
     g.traverse((o) => (o.userData.i = i));
     ring.add(g);
-    return { g, p, a, s: 1, faceMat, bodyMat, base: bodyMat.color.clone() };
+    return { g, p, a, s: 1, faceMat, bodyMat, base: bodyMat.color.clone(), shine, shineMap, refl };
   });
 
   // yerde öndeki ikonun renginde ışık havuzu
@@ -489,6 +561,14 @@ export function mountNormal(root, { onSwitch } = {}) {
       ic.s = lerp(ic.s, 0.88 + f * 0.16, 1 - Math.exp(-dt * 8));
       ic.g.scale.setScalar(ic.s);
       ic.g.position.y = reduce ? 0 : Math.sin(t * 1.1 + ic.a * 2) * 0.04;
+      // yansıma zemine göre ayna: ikon yükselince yansıması alçalır
+      ic.refl.position.y = 2 * FLOOR - 2 * ic.g.position.y / ic.s;
+      ic.refl.material.opacity = 0.05 + 0.2 * f * f;
+      // ışık şeridi yalnız öndeki ikonda, 4.5 sn'de bir soldan sağa geçer
+      const k = (t % 4.5) / 0.9;
+      const on = !reduce && ic === icons[front] && k < 1;
+      ic.shine.material.opacity = on ? Math.sin(k * Math.PI) * 0.9 : 0;
+      if (on) ic.shineMap.offset.x = lerp(0.75, -0.25, k);
     }
     glowColor.lerp(tmpC, 1 - Math.exp(-dt * 4));
     rim.color.copy(glowColor);
