@@ -150,7 +150,7 @@ export function mountNormal(root, { onSwitch } = {}) {
   const CORNER = 0.3;
   const N = list.length;
   const R = N > 1 ? 1.75 : 0;
-  const FLOOR = -S * 0.62;
+  const FLOOR = -S * 0.53;
   const ring = new THREE.Group();
   scene.add(ring);
   const slabGeo = new THREE.ExtrudeGeometry(squircle(S, CORNER), { depth: DEPTH, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3, curveSegments: 16 });
@@ -267,7 +267,7 @@ export function mountNormal(root, { onSwitch } = {}) {
     g.add(sh);
     g.traverse((o) => (o.userData.i = i));
     ring.add(g);
-    return { g, p, a, s: 1, faceMat, bodyMat, base: bodyMat.color.clone(), shine, shineMap, refl };
+    return { g, p, a, s: 1, faceMat, bodyMat, base: bodyMat.color.clone(), shine, shineMap, refl, gloss };
   });
 
   // yerde öndeki ikonun renginde ışık havuzu
@@ -555,15 +555,21 @@ export function mountNormal(root, { onSwitch } = {}) {
     for (const ic of icons) {
       const f = (Math.cos(ic.a + spin) + 1) / 2; // 1 önde, 0 arkada
       // öndeki parlak ve biraz büyük; arkadakiler karanlıkta
-      const lit = 0.18 + 0.82 * f ** 2.2;
+      const lit = 0.1 + 0.9 * f ** 2.5;
       ic.faceMat.color.setScalar(lit);
-      ic.bodyMat.color.copy(ic.base).multiplyScalar(0.3 + 0.7 * f);
-      ic.s = lerp(ic.s, 0.88 + f * 0.16, 1 - Math.exp(-dt * 8));
+      ic.bodyMat.color.copy(ic.base).multiplyScalar(0.15 + 0.85 * f * f);
+      // yanda/arkada mat: kenarlarda parlak yansıma çizgisi kalmasın
+      const f4 = f ** 4;
+      ic.bodyMat.envMapIntensity = 0.08 + 0.92 * f4;
+      ic.bodyMat.clearcoat = 0.1 + 0.9 * f4;
+      ic.gloss.material.opacity = 0.15 + 0.85 * f4;
+      // arkadakiler küçülür, öndeki büyür
+      ic.s = lerp(ic.s, 0.72 + f * 0.32, 1 - Math.exp(-dt * 8));
       ic.g.scale.setScalar(ic.s);
       ic.g.position.y = reduce ? 0 : Math.sin(t * 1.1 + ic.a * 2) * 0.04;
       // yansıma zemine göre ayna: ikon yükselince yansıması alçalır
       ic.refl.position.y = 2 * FLOOR - 2 * ic.g.position.y / ic.s;
-      ic.refl.material.opacity = 0.05 + 0.2 * f * f;
+      ic.refl.material.opacity = 0.02 + 0.36 * f4;
       // ışık şeridi yalnız öndeki ikonda, 4.5 sn'de bir soldan sağa geçer
       const k = (t % 4.5) / 0.9;
       const on = !reduce && ic === icons[front] && k < 1;
