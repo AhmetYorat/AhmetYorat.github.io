@@ -46,7 +46,7 @@ export function mountNormal(root, { onSwitch } = {}) {
         <h2 class="nm-title" style="${fontCss(p)}">${esc(p.name)}</h2>
         <p class="nm-desc">${esc(p.desc)}</p>
         <p class="nm-tags"><i></i>${esc([...p.platforms, p.stack].join(' · '))}</p>
-        ${p.link ? `<a class="nm-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.linkLabel || 'Aç')} <span aria-hidden="true">↗</span></a>` : ''}
+        ${p.link ? `<a class="nm-link" href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.linkLabel || 'Aç')} <span aria-hidden="true">↗</span></a>` : p.linkLabel ? `<span class="nm-link nm-link-off">${esc(p.linkLabel)}</span>` : ''}
       </section>`
         )
         .join('')}

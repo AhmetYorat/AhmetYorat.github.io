@@ -144,10 +144,11 @@ export const projects = [
     desc: 'Antikor güvenlik duvarının yönetim panelini otomatik gezip her ekranın görüntüsünü alan, sonra yapay zekâyla bu görüntülerden Türkçe kullanım kılavuzu yazan otomasyon.',
     platforms: ['Node.js'],
     stack: 'Playwright · Görsel dil modeli',
-    link: 'https://github.com/AhmetYorat/AntikorKilavuzOlusturucu',
+    // repo gizli (kullanıcı açmak istemedi): link yok, buton pasif "Kod gizli" yazar
+    link: null,
     image: '/projects/antikor/cover.svg',
     logo: '/projects/antikor/logo.svg',
-    linkLabel: 'GitHub',
+    linkLabel: 'Kod gizli',
     bmo: 'Bütün paneli tek tek gezdim, her ekranın fotoğrafını çektim, sonra koca bir kılavuz yazdım. Kimse okumaz ama olsun!',
   },
 ];
