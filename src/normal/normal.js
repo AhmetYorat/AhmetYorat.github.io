@@ -95,17 +95,13 @@ export function mountNormal(root, { onSwitch } = {}) {
   // ---------- 3D ikon çarkı ----------
   // Temiz, ince uygulama ikonu levhaları; öndeki parlak, arkadakiler karanlıkta kalır.
   // Öne hangi ikon gelirse yerdeki ışık havuzu ve arka plan ışığı onun rengini alır.
-  // Opak tuval: arka plan sahnenin içinde, sayfayla aynı renk. Şeffaf tuvale ışık eklemenin sonucu
-  // tarayıcıdan tarayıcıya değişiyordu (Safari'de ışık havuzu dikdörtgen çıkıyordu); opakta hepsi aynı.
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-  // retina ekranda tam 2x gereksiz yük (Safari'de sürüklerken takılıyordu)
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   // cilalı gövdelere yumuşak stüdyo yansıması
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#0d1211');
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 60);
   scene.add(new THREE.AmbientLight('#ffffff', 0.5));
   const key = new THREE.DirectionalLight('#ffffff', 1.4);
@@ -138,13 +134,6 @@ export function mountNormal(root, { onSwitch } = {}) {
     g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
     return g;
   }
-  // Işık katmanları saydamlığa dayanmaz: siyah zemin üstüne parlaklık olarak çizilir ve "ekleyerek"
-  // karıştırılır (siyah = hiçbir şey eklemez). Safari saydam kanvas dokularını farklı işlediği için
-  // saydamlıklı yöntemde ışık havuzu keskin kenarlı bir dikdörtgen olarak görünüyordu.
-  const lightMat = (map) => new THREE.MeshBasicMaterial({
-    map, transparent: true, depthWrite: false, toneMapped: false,
-    blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
-  });
   const radial = (stops) => {
     const c = document.createElement('canvas');
     c.width = c.height = 256;
@@ -177,16 +166,14 @@ export function mountNormal(root, { onSwitch } = {}) {
     const c = document.createElement('canvas');
     c.width = c.height = 256;
     const x = c.getContext('2d');
-    x.fillStyle = '#000';
-    x.fillRect(0, 0, 256, 256);
     const g = x.createLinearGradient(0, 0, 60, 256);
-    g.addColorStop(0, 'rgb(82,82,82)');
-    g.addColorStop(0.42, 'rgb(15,15,15)');
-    g.addColorStop(0.5, '#000');
+    g.addColorStop(0, 'rgba(255,255,255,0.32)');
+    g.addColorStop(0.42, 'rgba(255,255,255,0.06)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0)');
     x.fillStyle = g;
     x.fillRect(0, 0, 256, 256);
     // ince kenar ışığı
-    x.strokeStyle = 'rgb(46,46,46)';
+    x.strokeStyle = 'rgba(255,255,255,0.18)';
     x.lineWidth = 4;
     x.beginPath();
     x.roundRect(3, 3, 250, 250, 56);
@@ -199,12 +186,10 @@ export function mountNormal(root, { onSwitch } = {}) {
     c.width = 512;
     c.height = 256;
     const x = c.getContext('2d');
-    x.fillStyle = '#000';
-    x.fillRect(0, 0, 512, 256);
     const g = x.createLinearGradient(170, 0, 342, 0);
-    g.addColorStop(0, '#000');
-    g.addColorStop(0.5, 'rgb(140,140,140)');
-    g.addColorStop(1, '#000');
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
     x.fillStyle = g;
     x.setTransform(1, 0, -0.45, 1, 58, 0);
     x.fillRect(0, 0, 512, 256);
@@ -264,13 +249,12 @@ export function mountNormal(root, { onSwitch } = {}) {
     face.position.z = DEPTH / 2 + 0.021;
     g.add(face);
     // cam parlaklığı + geçen ışık şeridi
-    const gloss = new THREE.Mesh(faceGeo, lightMat(glossTex));
+    const gloss = new THREE.Mesh(faceGeo, new THREE.MeshBasicMaterial({ map: glossTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
     gloss.position.z = face.position.z + 0.002;
     g.add(gloss);
     const shineMap = shineTex.clone();
     shineMap.needsUpdate = true;
-    const shine = new THREE.Mesh(faceGeo, lightMat(shineMap));
-    shine.material.color.setScalar(0);
+    const shine = new THREE.Mesh(faceGeo, new THREE.MeshBasicMaterial({ map: shineMap, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
     shine.position.z = face.position.z + 0.004;
     g.add(shine);
     // zemindeki soluk yansıma (ön yüzün aynası)
@@ -288,15 +272,11 @@ export function mountNormal(root, { onSwitch } = {}) {
 
   // yerde öndeki ikonun renginde ışık havuzu
   const pool = new THREE.Mesh(
-    new THREE.PlaneGeometry(5.4, 3.2).rotateX(-Math.PI / 2),
-    lightMat(radial([[0, 'rgb(230,230,230)'], [0.35, 'rgb(90,90,90)'], [0.75, 'rgb(12,12,12)'], [1, '#000']]))
+    new THREE.PlaneGeometry(7, 4.2).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ map: radial([[0, 'rgba(255,255,255,0.9)'], [0.35, 'rgba(255,255,255,0.35)'], [1, 'rgba(255,255,255,0)']]), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.6 })
   );
   pool.position.set(0, FLOOR - 0.01, R * 0.55);
   scene.add(pool);
-  // ikonların arkasında öndeki projenin renginde geniş, yumuşak ışık (eskiden CSS bulanıklığıydı)
-  const backGlow = new THREE.Mesh(new THREE.PlaneGeometry(7, 4.6), lightMat(radial([[0, 'rgb(255,255,255)'], [0.45, 'rgb(90,90,90)'], [0.8, 'rgb(10,10,10)'], [1, '#000']])));
-  backGlow.position.set(0, 0.2, -R - 1.2);
-  scene.add(backGlow);
   // öndeki ikona arkadan vuran renkli ışık
   const rim = new THREE.PointLight('#5be08a', 10, 7);
   rim.position.set(0, 1.4, R - 0.6);
@@ -324,7 +304,7 @@ export function mountNormal(root, { onSwitch } = {}) {
     front = i;
     const p = list[i];
     tmpC.set(p.color);
-    glow.style.setProperty('--gc', p.color);
+    glow.style.background = p.color;
     wrap.style.setProperty('--front', p.color);
     swap.classList.remove('is-in');
     void swap.offsetWidth;
@@ -582,7 +562,7 @@ export function mountNormal(root, { onSwitch } = {}) {
       const f4 = f ** 4;
       ic.bodyMat.envMapIntensity = 0.08 + 0.92 * f4;
       ic.bodyMat.clearcoat = 0.1 + 0.9 * f4;
-      ic.gloss.material.color.setScalar(0.15 + 0.85 * f4);
+      ic.gloss.material.opacity = 0.15 + 0.85 * f4;
       // arkadakiler küçülür, öndeki büyür
       ic.s = lerp(ic.s, 0.72 + f * 0.32, 1 - Math.exp(-dt * 8));
       ic.g.scale.setScalar(ic.s);
@@ -593,13 +573,12 @@ export function mountNormal(root, { onSwitch } = {}) {
       // ışık şeridi yalnız öndeki ikonda, 4.5 sn'de bir soldan sağa geçer
       const k = (t % 4.5) / 0.9;
       const on = !reduce && ic === icons[front] && k < 1;
-      ic.shine.material.color.setScalar(on ? Math.sin(k * Math.PI) * 0.9 : 0);
+      ic.shine.material.opacity = on ? Math.sin(k * Math.PI) * 0.9 : 0;
       if (on) ic.shineMap.offset.x = lerp(0.75, -0.25, k);
     }
     glowColor.lerp(tmpC, 1 - Math.exp(-dt * 4));
     rim.color.copy(glowColor);
-    pool.material.color.copy(glowColor).multiplyScalar(0.6);
-    backGlow.material.color.copy(glowColor).multiplyScalar(0.022);
+    pool.material.color.copy(glowColor);
     renderer.render(scene, camera);
   }
   tick();
